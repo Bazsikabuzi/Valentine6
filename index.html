@@ -39,13 +39,13 @@ button {
     border-radius: 10px;
     cursor: pointer;
     position: absolute;
-    transition: all 0.2s ease;
+    transition: all 0.1s ease;
 }
 
 #yesBtn {
     background: #4CAF50;
     color: white;
-    left: 45%;   /* minden betöltéskor ugyanott */
+    left: 45%; 
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
@@ -54,7 +54,7 @@ button {
 #noBtn {
     background: #ff4d4d;
     color: white;
-    left: 55%;   /* minden betöltéskor ugyanott, nem fedik egymást */
+    left: 55%;
     top: 50%;
     z-index: 2;
 }
@@ -94,32 +94,30 @@ const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 const music = document.getElementById("bgMusic");
 
-// Zene elindítása az első kattintásra (mobil és desktop)
-document.addEventListener("click", () => {
-    music.play();
-}, { once: true });
+// zene elindítása az első kattintásra
+document.addEventListener("click", () => music.play(), { once: true });
 
-// NO gomb mozgatása, ha az egér közelít
-document.addEventListener("mousemove", (e) => {
+// NO gomb menekülő logika – **soha nem megy ki a képernyőről**
+document.addEventListener("mousemove", e => {
     const rect = noBtn.getBoundingClientRect();
     const mouseX = e.clientX;
     const mouseY = e.clientY;
-    const safeDistance = 120; // menekülés távolsága
+    const safeDistance = 120;
 
-    if(mouseX > rect.left - safeDistance && mouseX < rect.right + safeDistance &&
-       mouseY > rect.top - safeDistance && mouseY < rect.bottom + safeDistance){
+    // ha az egér túl közel van a gombhoz
+    const distX = mouseX - (rect.left + rect.width/2);
+    const distY = mouseY - (rect.top + rect.height/2);
+    const distance = Math.sqrt(distX*distX + distY*distY);
 
-        const btnWidth = rect.width;
-        const btnHeight = rect.height;
+    if(distance < safeDistance){
+        const maxX = window.innerWidth - rect.width;
+        const maxY = window.innerHeight - rect.height;
 
-        // Mozgás a kurzorral ellentétes irányba
-        let newX = rect.left + (rect.left < mouseX ? -safeDistance : safeDistance);
-        let newY = rect.top + (rect.top < mouseY ? -safeDistance : safeDistance);
+        // új pozíció a kurzortól távolabb
+        let newX = rect.left - distX/Math.abs(distX || 1) * safeDistance;
+        let newY = rect.top - distY/Math.abs(distY || 1) * safeDistance;
 
-        // Korlátozás a képernyőn belül
-        const maxX = window.innerWidth - btnWidth;
-        const maxY = window.innerHeight - btnHeight;
-
+        // korlátozás a viewporton belül
         newX = Math.max(0, Math.min(maxX, newX));
         newY = Math.max(0, Math.min(maxY, newY));
 
@@ -133,19 +131,18 @@ yesBtn.addEventListener("click", () => {
     document.querySelector("h1").innerHTML = "YAAAAAY 💖💖💖<br>I LOVE YOU ❤️";
 });
 
-// Lebegő szívecskék
+// lebegő szívecskék
 function createHeart(){
     const heart = document.createElement("div");
     heart.className = "heart";
     heart.innerText = "❤️";
     heart.style.left = Math.random() * window.innerWidth + "px";
-    heart.style.fontSize = (10 + Math.random() * 30) + "px";
+    heart.style.fontSize = (10 + Math.random()*30) + "px";
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 5000);
 }
 setInterval(createHeart, 400);
 
 </script>
-
 </body>
 </html>
